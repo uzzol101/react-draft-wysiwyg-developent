@@ -84,7 +84,8 @@ const getImageComponent = config => class Image extends Component {
     const { hovered } = this.state;
     const { isReadOnly, isImageAlignmentEnabled } = config;
     const entity = contentState.getEntity(block.getEntityAt(0));
-    const { src, alignment, height, width, alt } = entity.getData();
+    const { src, alignment="left", height, width, alt } = entity.getData();
+    console.log('alignement ', alignment)
 
     return (
       <span
@@ -110,7 +111,7 @@ const getImageComponent = config => class Image extends Component {
           />
           {
             !isReadOnly() && hovered && isImageAlignmentEnabled() ?
-              this.renderAlignmentOptions(alignment)
+              this.renderAlignmentOptions(alignment || 'left')
               :
               undefined
           }
