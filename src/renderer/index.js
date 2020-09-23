@@ -8,7 +8,14 @@ const getBlockRenderFunc = (config, customBlockRenderer) => (block) => {
   }
   if (block.getType() === 'atomic') {
     const contentState = config.getEditorState().getCurrentContent();
+    // console.log('content state ', contentState)
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    console.log('block in image type', block.getType())
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+    // console.log('block EntityAt', block.getEntityAt(0))
+
     const entity = contentState.getEntity(block.getEntityAt(0));
+    // console.log('entity ', entity)
     if (entity && entity.type === 'IMAGE') {
       return {
         component: getImageComponent(config),

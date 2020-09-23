@@ -8,6 +8,7 @@ import {
   convertFromRaw,
   CompositeDecorator,
   getDefaultKeyBinding,
+  AtomicBlockUtils
 } from 'draft-js';
 import {
   changeDepth,
@@ -35,6 +36,44 @@ import defaultToolbar from '../config/defaultToolbar';
 import localeTranslations from '../i18n';
 import './styles.css';
 import '../css/Draft.css';
+
+
+
+
+
+
+
+const Audio = (props) => {
+  return <audio controls src={props.src} />;
+};
+
+const Image = (props) => {
+  return <img src={props.src} />;
+};
+
+const Video = (props) => {
+  return <video controls src={props.src} />;
+};
+
+const Media = (props) => {
+  console.log('here is props ', props)
+  const entity = props.contentState.getEntity(
+    props.block.getEntityAt(0)
+  );
+  const {src} = entity.getData();
+  const type = entity.getType();
+
+  let media;
+  if (type === 'audio') {
+    media = <Audio src={src} />;
+  } else if (type === 'IMAGE') {
+    media = <Image src={src} />;
+  } else if (type === 'video') {
+    media = <Video src={src} />;
+  }
+
+  return media;
+};
 
 class WysiwygEditor extends Component {
   constructor(props) {
@@ -69,6 +108,25 @@ class WysiwygEditor extends Component {
 
   componentDidMount() {
     this.modalHandler.init(this.wrapperId);
+    let {editorState} = this.state
+    const contentState = editorState.getCurrentContent();
+          const contentStateWithEntity = contentState.createEntity(
+            'IMAGE',
+            'IMMUTABLE',
+            {src: 'https://images.unsplash.com/photo-1542840843-3349799cded6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'}
+          );
+          const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+          const newEditorState = EditorState.set(
+            editorState,
+            {currentContent: contentStateWithEntity}
+          );
+    this.setState({
+      editorState: AtomicBlockUtils.insertAtomicBlock(
+        newEditorState,
+        entityKey,
+        ' '
+      ),
+    })
   }
   // todo: change decorators depending on properties recceived in componentWillReceiveProps.
 
@@ -176,22 +234,27 @@ class WysiwygEditor extends Component {
 
   onChange = editorState => {
     const { readOnly, onEditorStateChange } = this.props;
-    if (
-      !readOnly &&
-      !(
-        getSelectedBlocksType(editorState) === 'atomic' &&
-        editorState.getSelection().isCollapsed
-      )
-    ) {
-      if (onEditorStateChange) {
-        onEditorStateChange(editorState, this.props.wrapperId);
-      }
-      if (!hasProperty(this.props, 'editorState')) {
-        this.setState({ editorState }, this.afterChange(editorState));
-      } else {
-        this.afterChange(editorState);
-      }
-    }
+    const content = editorState.getCurrentContent();
+    console.log('raw', convertToRaw(content));
+    this.setState({
+      editorState
+    })
+    // if (
+    //   !readOnly &&
+    //   !(
+    //     getSelectedBlocksType(editorState) === 'atomic' &&
+    //     editorState.getSelection().isCollapsed
+    //   )
+    // ) {
+    //   if (onEditorStateChange) {
+    //     onEditorStateChange(editorState, this.props.wrapperId);
+    //   }
+    //   if (!hasProperty(this.props, 'editorState')) {
+    //     this.setState({ editorState }, this.afterChange(editorState));
+    //   } else {
+    //     this.afterChange(editorState);
+    //   }
+    // }
   };
 
   setWrapperReference = ref => {
@@ -407,6 +470,19 @@ class WysiwygEditor extends Component {
     }
   };
 
+   mediaBlockRenderer(block) {
+    if (block.getType() === 'atomic') {
+      console.log('atomic block')
+      return {
+        component: Media,
+        editable: false,
+      };
+    }
+  
+    return '';
+  }
+  
+
   render() {
     const { editorState, editorFocused, toolbar } = this.state;
     const {
@@ -424,6 +500,7 @@ class WysiwygEditor extends Component {
       uploadCallback,
       ariaLabel,
     } = this.props;
+
 
     const controlProps = {
       modalHandler: this.modalHandler,
@@ -490,7 +567,14 @@ class WysiwygEditor extends Component {
             customStyleMap={this.getStyleMap(this.props)}
             handleReturn={this.handleReturn}
             handlePastedText={this.handlePastedTextFn}
-            blockRendererFn={this.blockRendererFn}
+            blockRendererFn={(block) => {
+              // console.log('here is block ', block)
+              // console.log('block type ', block.getType())
+              // console.log('block EntityAt', block.getEntityAt(0))
+              // console.log('******************************************************')
+              
+              return this.mediaBlockRenderer(block)
+            }}
             handleKeyCommand={this.handleKeyCommand}
             ariaLabel={ariaLabel || 'rdw-editor'}
             blockRenderMap={blockRenderMap}
@@ -562,3 +646,5 @@ export default WysiwygEditor;
 
 // todo: evaluate draftjs-utils to move some methods here
 // todo: move color near font-family
+
+

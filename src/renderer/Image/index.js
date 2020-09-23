@@ -85,7 +85,6 @@ const getImageComponent = config => class Image extends Component {
     const { isReadOnly, isImageAlignmentEnabled } = config;
     const entity = contentState.getEntity(block.getEntityAt(0));
     const { src, alignment="left", height, width, alt } = entity.getData();
-    console.log('alignement ', alignment)
 
     return (
       <span
