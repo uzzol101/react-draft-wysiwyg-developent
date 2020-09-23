@@ -1,11 +1,11 @@
 import React from 'react'
 import Embedded from './Embedded';
-import getImageComponent from '../renderer/Image';
+import ImageComponent from '../renderer/Image';
 
 
 
 
-
+let allConfig, customBlockRendererFunction
 
 
 
@@ -31,12 +31,10 @@ const Media = (props) => {
   const type = entity.getType();
 
   let media;
-  if (type === 'audio') {
-    media = <Audio src={src} />;
+  if (type === 'EMBEDDED_LINK') {
+    media = <Embedded {...props} src={src} />;
   } else if (type === 'IMAGE') {
-    media = <Image src={src} />;
-  } else if (type === 'video') {
-    media = <Video src={src} />;
+    media = <ImageComponent {...props} config={allConfig} src={src} />;
   }
 
   return media;
@@ -56,6 +54,8 @@ function mediaBlockRenderer(block) {
 
 
 const getBlockRenderFunc = (config, customBlockRenderer) => (block) => {
+  allConfig = config
+  customBlockRendererFunction = customBlockRenderer
   // if (typeof customBlockRenderer === 'function') {
   //   const renderedComponent = customBlockRenderer(block, config, config.getEditorState);
   //   if (renderedComponent) return renderedComponent;

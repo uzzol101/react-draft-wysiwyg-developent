@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import Option from '../../components/Option';
 import './styles.css';
 
-const getImageComponent = config => class Image extends Component {
+class ImageComponent extends Component {
   static propTypes: Object = {
     block: PropTypes.object,
     contentState: PropTypes.object,
@@ -28,7 +28,7 @@ const getImageComponent = config => class Image extends Component {
   };
 
   setEntityAlignment: Function = (alignment): void => {
-    const { block, contentState } = this.props;
+    const { block, contentState, config } = this.props;
     const entityKey = block.getEntityAt(0);
     contentState.mergeEntityData(
       entityKey,
@@ -80,7 +80,7 @@ const getImageComponent = config => class Image extends Component {
   }
 
   render(): Object {
-    const { block, contentState } = this.props;
+    const { block, contentState, config } = this.props;
     const { hovered } = this.state;
     const { isReadOnly, isImageAlignmentEnabled } = config;
     const entity = contentState.getEntity(block.getEntityAt(0));
@@ -120,4 +120,4 @@ const getImageComponent = config => class Image extends Component {
   }
 };
 
-export default getImageComponent;
+export default ImageComponent;
