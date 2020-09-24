@@ -3,38 +3,20 @@ import Embedded from './Embedded';
 import ImageComponent from '../renderer/Image';
 
 
-
-
-let allConfig, customBlockRendererFunction
-
-
-
-
-const Audio = (props) => {
-  return <audio controls src={props.src} />;
-};
-
-const Image = (props) => {
-  return <img src={props.src} />;
-};
-
-const Video = (props) => {
-  return <video controls src={props.src} />;
-};
+let allConfig;
 
 const Media = (props) => {
-  console.log('here is props ', props)
   const entity = props.contentState.getEntity(
     props.block.getEntityAt(0)
   );
-  const {src} = entity.getData();
+
   const type = entity.getType();
 
   let media;
   if (type === 'EMBEDDED_LINK') {
-    media = <Embedded {...props} src={src} />;
+    media = <Embedded {...props}  />;
   } else if (type === 'IMAGE') {
-    media = <ImageComponent {...props} config={allConfig} src={src} />;
+    media = <ImageComponent {...props} config={allConfig} />;
   }
 
   return media;
@@ -42,7 +24,6 @@ const Media = (props) => {
 
 function mediaBlockRenderer(block) {
  if (block.getType() === 'atomic') {
-   console.log('atomic block')
    return {
      component: Media,
      editable: false,
@@ -54,36 +35,13 @@ function mediaBlockRenderer(block) {
 
 
 const getBlockRenderFunc = (config, customBlockRenderer) => (block) => {
+  
   allConfig = config
-  customBlockRendererFunction = customBlockRenderer
-  // if (typeof customBlockRenderer === 'function') {
-  //   const renderedComponent = customBlockRenderer(block, config, config.getEditorState);
-  //   if (renderedComponent) return renderedComponent;
-  // }
-  // if (block.getType() === 'atomic') {
-  //   const contentState = config.getEditorState().getCurrentContent();
-  //   // console.log('content state ', contentState)
-  //   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  //   console.log('block in image type', block.getType())
-  //   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  //   // console.log('block EntityAt', block.getEntityAt(0))
 
-  //   const entity = contentState.getEntity(block.getEntityAt(0));
-  //   // console.log('entity ', entity)
-  //   if (entity && entity.type === 'IMAGE') {
-  //     return {
-  //       component: getImageComponent(config),
-  //       editable: false,
-  //     };
-  //   } else if (entity && entity.type === 'EMBEDDED_LINK') {
-  //     return {
-  //       component: Embedded,
-  //       editable: false,
-  //     };
-  //   }
-  // }
-  // return undefined;
-
+  if (typeof customBlockRenderer === 'function') {
+    const renderedComponent = customBlockRenderer(block, config, config.getEditorState);
+    if (renderedComponent) return renderedComponent;
+  }
 
   return mediaBlockRenderer(block)
 };
